@@ -10,7 +10,18 @@ public class Player {
     protected int loseStats;
 
     public Player(String name, String symbol) {
+        setName(name);
+        setSymbol(symbol);
+        this.nrOfMoves = 0;
+        this.winStats = 0;
+        this.loseStats = 0;
+    }
+
+    public void setName(String name) {
         this.name = name;
+    }
+
+    public void setSymbol(String symbol) {
         this.symbol = symbol;
     }
 
