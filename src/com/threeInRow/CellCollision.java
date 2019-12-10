@@ -2,7 +2,7 @@ package com.threeInRow;
 
 import java.util.ArrayList;
 
-public class CellNeighbours{
+public class CellCollision {
     private Cell rightCell;
     private Cell leftCell;
     private Cell topCell;
@@ -12,8 +12,12 @@ public class CellNeighbours{
     private Cell leftBottom;
     private Cell leftTop;
     private ArrayList<Cell> neighboursArray;
+    private ArrayList<Cell> verticalCells;
+    private ArrayList<Cell> horizontalCells;
+    private ArrayList<Cell> diagonalCells;
 
-    public CellNeighbours() {
+
+    public CellCollision() {
         this.rightCell = null;
         this.leftCell = null;
         this.topCell = null;
@@ -23,7 +27,9 @@ public class CellNeighbours{
         this.leftBottom = null;
         this.leftTop = null;
         this.neighboursArray = new ArrayList<>();
-        setNeighboursArray();
+        this.verticalCells = new ArrayList<>();
+        this.horizontalCells = new ArrayList<>();
+        this.diagonalCells = new ArrayList<>();
     }
 
     protected ArrayList<Cell> getNeighboursArray() {
@@ -41,6 +47,30 @@ public class CellNeighbours{
         getNeighboursArray().add(getLeftTop());
         getNeighboursArray().add(getRightCell());
         getNeighboursArray().add(getRightCell());
+    }
+
+    protected ArrayList<Cell> getVerticalCells() {
+        return verticalCells;
+    }
+
+    protected void setVerticalCells(Cell cell) {
+        getVerticalCells().add(cell);
+    }
+
+    protected ArrayList<Cell> getHorizontalCells() {
+        return horizontalCells;
+    }
+
+    protected void setHorizontalCells(Cell cell) {
+        getHorizontalCells().add(cell);
+    }
+
+    protected ArrayList<Cell> getDiagonalCells() {
+        return diagonalCells;
+    }
+
+    protected void setDiagonalCells(Cell cell) {
+        getDiagonalCells().add(cell);
     }
 
     protected Cell getRightCell() {

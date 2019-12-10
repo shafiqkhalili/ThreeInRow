@@ -1,30 +1,21 @@
 package com.threeInRow;
 
 public class Cell {
+    private static int nrOfCells = 1;
     //Symbol of cell (X|O) or cell number by default
     private String value;
     private Player player;
-    private static int nrOfCells=1;
-    private boolean taken;
+    private boolean isTaken;
     private int index;
-    private CellNeighbours cellNeighbours;
+    private CellCollision cellCollision;
 
     public Cell() {
         this.value = String.valueOf(this.nrOfCells);
         this.player = null;
-        this.taken = false;
-        this.cellNeighbours = new CellNeighbours();
+        this.isTaken = false;
+        this.index++;
+        this.cellCollision = new CellCollision();
         this.nrOfCells++;
-    }
-
-    public Cell(Player player) {
-        this.value = player.symbol;
-        this.player = player;
-        this.nrOfCells++;
-    }
-
-    protected void setValue(String value) {
-        this.value = value;
     }
 
     protected static int getNrOfCells() {
@@ -36,23 +27,27 @@ public class Cell {
     }
 
     protected boolean isTaken() {
-        return taken;
+        return isTaken;
     }
 
     protected void setTaken(boolean taken) {
-        this.taken = taken;
+        this.isTaken = taken;
     }
 
-    protected CellNeighbours getCellNeighbours() {
-        return cellNeighbours;
+    protected CellCollision getCellCollision() {
+        return cellCollision;
     }
 
-    protected void setCellNeighbours(CellNeighbours cellNeighbours) {
-        this.cellNeighbours = cellNeighbours;
+    protected void setCellCollision(CellCollision cellCollision) {
+        this.cellCollision = cellCollision;
     }
 
     protected String getValue() {
         return value;
+    }
+
+    protected void setValue(String value) {
+        this.value = value;
     }
 
     protected Player getPlayer() {
