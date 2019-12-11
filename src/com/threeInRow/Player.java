@@ -1,8 +1,6 @@
 package com.threeInRow;
 
-import java.util.ArrayList;
-
-public class Player {
+public abstract class Player {
     private String name;
     private String symbol;
     private int nrOfMoves;
@@ -10,8 +8,8 @@ public class Player {
     private int loseStats;
 
     public Player(String name, String symbol) {
-        setName(name);
-        setSymbol(symbol);
+        this.name = name;
+        this.symbol = symbol;
         this.nrOfMoves = 0;
         this.winStats = 0;
         this.loseStats = 0;
@@ -48,4 +46,6 @@ public class Player {
     public int getLoseStats() {
         return loseStats;
     }
+
+    public abstract int selectCell();
 }

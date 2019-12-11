@@ -6,8 +6,10 @@ import java.util.Scanner;
 public class ThreeInOne {
 
     public static void main(String[] args) {
+
         Scanner sc = new Scanner(System.in);
-        int opt = 0;
+        initialize();
+        /*int opt = 0;
         while (opt == 0) {
             System.out.println("Select an option:");
             System.out.println("1. To start new game");
@@ -25,7 +27,7 @@ public class ThreeInOne {
                     System.exit(0);
                     break;
             }
-        }
+        }*/
     }
 
     public static void initialize() {
@@ -33,12 +35,18 @@ public class ThreeInOne {
 
         ArrayList<Player> players = new ArrayList<>();
 
-        int nrOfColumns = 0;
-        while (nrOfColumns == 0) {
-            System.out.println("Select nr of columns, select 3,4 or 5 ");
+        int boardSize = 0;
+        while (boardSize == 0) {
+            System.out.println("Select game difficulty: ");
+            System.out.println("3. Easy");
+            System.out.println("4. Medium");
+            System.out.println("5. Difficult");
             try {
-                nrOfColumns = Integer.parseInt(sc.nextLine());
-                nrOfColumns = Math.abs(nrOfColumns);
+                boardSize = Integer.parseInt(sc.nextLine());
+                boardSize = Math.abs(boardSize);
+                if (boardSize < 3 || boardSize > 5) {
+                    boardSize = 0;
+                }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -46,23 +54,34 @@ public class ThreeInOne {
         int nrOfPlayers = 0;
         while (nrOfPlayers == 0) {
             try {
-                System.out.println("Write nr of players in numbers, 2 or 3 players");
+                System.out.println("Select an option:");
+                System.out.println("1. Play again AI");
+                System.out.println("2. Play against another person");
                 nrOfPlayers = Integer.parseInt(sc.nextLine());
                 nrOfPlayers = Math.abs(nrOfPlayers);
+                if (nrOfPlayers < 1 || nrOfPlayers > 2) {
+                    nrOfPlayers = 0;
+                }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
         }
 
-        Map map = new Map(nrOfColumns, nrOfColumns);
-
         for (int i = 1; i <= nrOfPlayers; i++) {
-            Scanner scn = new Scanner(System.in);
             String playerName = "";
             while (playerName.equalsIgnoreCase("")) {
                 try {
-                    System.out.println("Select player " + i + " name");
-                    playerName = scn.nextLine().toUpperCase().trim();
+                    System.out.println("Select player " + i + " name.");
+                    playerName = sc.nextLine().toUpperCase().trim();
+                    if (players.size() > 0) {
+                        for (Player p : players
+                        ) {
+                            if (p.getName().equalsIgnoreCase(playerName)) {
+                                System.out.println(playerName + " is already taken ");
+                                playerName = "";
+                            }
+                        }
+                    }
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
@@ -71,34 +90,56 @@ public class ThreeInOne {
             while (symbol.equalsIgnoreCase("")) {
                 try {
                     System.out.println("Select player " + i + " symbol (Only one character)");
-                    symbol = scn.nextLine().toUpperCase().trim().substring(0, 1);
+                    symbol = sc.nextLine().toUpperCase().trim().substring(0, 1);
+                    if (players.size() > 0) {
+                        for (Player p : players
+                        ) {
+                            if (p.getSymbol().equalsIgnoreCase(symbol)) {
+                                System.out.println(symbol + " already taken by " + p.getName());
+                                symbol = "";
+                            }
+                        }
+                    }
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
             }
-            Player pl = new Player(playerName, symbol);
+            Human pl = new Human(playerName, symbol);
             players.add(pl);
         }
-        startGame(map,players);
+
+        System.out.println("Select an option:");
+        System.out.println("1. Play");
+        System.out.println("2. Exit");
+
+        if (nrOfPlayers == 1) {
+            Ai ai = new Ai(boardSize * boardSize);
+            players.add(ai);
+        }
+
+        startGame(players, boardSize);
+
     }
 
 
-    public static void startGame(Map map, ArrayList<Player> players) {
+    public static void startGame(ArrayList<Player> players, int boardSize) {
+        /*Initializes board/map*/
+        Map map = new Map(boardSize);
+
         Scanner sc = new Scanner(System.in);
         ArrayList<Cell> cellCoordinates = map.getCellCoordinates();
-        int currentPlayer = 0;
+        int currentPlayer = (int) Math.random() * players.size();
         Player player = players.get(currentPlayer);
         while (!map.isGameFinished()) {
             boolean cellNotSelected = true;
-            map.drawMap();
-            System.out.println(player.getName() + " plays!");
+            map.drawBoard();
+            System.out.println(player.getName()+"("+player.getSymbol() + ") plays!");
             while (cellNotSelected) {
                 int cell = 0;
                 while (cell == 0) {
-                    System.out.println("Select a cell number");
                     try {
-                        cell = Math.abs(sc.nextInt());
-                    } catch (Exception e) {
+                        cell = player.selectCell();
+                    } catch (NumberFormatException e) {
                         System.out.println(e.getMessage());
                     }
                 }
@@ -109,7 +150,7 @@ public class ThreeInOne {
                     if (!selectedCell.isTaken()) {
                         /*Set current players symbol as cell value*/
                         selectedCell.setValue(player.getSymbol());
-                        map.setEmptyCells(map.getEmptyCells() - 1);
+                        map.setRemainedEmptyCells(map.getRemainedEmptyCells() - 1);
                         selectedCell.setTaken(true);
                         cellNotSelected = false;
                     } else {
@@ -123,14 +164,14 @@ public class ThreeInOne {
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
-                if (map.isGameFinished() && map.isWinnerSelected()) {
-                    System.out.println("Game finished!");
-                    System.out.println(player.getName().toUpperCase() +
-                            "(" + player.getSymbol() + ")" + " WON in " + player.getNrOfMoves() + " moves.");
-                }
+            }
+            player.setNrOfMoves(player.getNrOfMoves() + 1);
+            if (map.isGameFinished() && map.isWinnerSelected()) {
+                System.out.println("Game finished!");
+                System.out.println(player.getName().toUpperCase() +
+                        "(" + player.getSymbol() + ")" + " WON in " + player.getNrOfMoves() + " moves.");
             }
             if (!map.isGameFinished()) {
-                player.setNrOfMoves(player.getNrOfMoves() + 1);
                 /*Change players on each turn, works even if more then one player*/
                 for (int j = 0; j < players.size(); j++) {
                     if (currentPlayer == j) {
@@ -144,6 +185,6 @@ public class ThreeInOne {
         if (!map.isWinnerSelected()) {
             System.out.println("DRAW !!!");
         }
-        map.drawMap();
+        map.drawBoard();
     }
 }

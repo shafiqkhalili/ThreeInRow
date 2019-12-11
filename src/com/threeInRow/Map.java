@@ -3,44 +3,38 @@ package com.threeInRow;
 import java.util.ArrayList;
 
 public class Map {
-    private static ArrayList<Cell> cellCoordinates;
+    private ArrayList<Cell> cellCoordinates;
     private int nrOfRows;
     private int nrOfColumns;
     private boolean isGameFinished;
     private boolean isWinnerSelected;
-    private boolean isMapFull;
-    private int emptyCells;
+    private int remainedEmptyCells;
+    /*Local variable to check value of cells in a row and column
+     bordering a selected cell on user selection*/
     private ArrayList<String> sameDirectionCellValues;
 
-    public Map(int nrOfRows, int nrOfColumns) {
-        this.emptyCells = nrOfColumns * nrOfRows;
-        this.nrOfRows = nrOfRows;
-        this.nrOfColumns = nrOfColumns;
+    public Map(int boardSize) {
+        this.remainedEmptyCells = boardSize * boardSize;
+        this.nrOfRows = boardSize;
+        this.nrOfColumns = boardSize;
         this.isGameFinished = false;
         this.isWinnerSelected = false;
         this.cellCoordinates = new ArrayList<>();
-        this.initializePositions();
+        initializeCells();
     }
 
-    protected static ArrayList<Cell> getCellCoordinates() {
+    public ArrayList<Cell> getCellCoordinates() {
         return cellCoordinates;
     }
 
-    public int getEmptyCells() {
-        return emptyCells;
+    public int getRemainedEmptyCells() {
+        return remainedEmptyCells;
     }
 
-    public void setEmptyCells(int emptyCells) {
-        this.emptyCells = emptyCells;
+    public void setRemainedEmptyCells(int remainedEmptyCells) {
+        this.remainedEmptyCells = remainedEmptyCells;
     }
 
-    public boolean isMapFull() {
-        return isMapFull;
-    }
-
-    public void setMapFull(boolean mapFull) {
-        isMapFull = mapFull;
-    }
 
     public boolean isWinnerSelected() {
         return isWinnerSelected;
@@ -66,17 +60,17 @@ public class Map {
         return nrOfColumns;
     }
 
-    protected void addPosition(Cell position) {
-        this.cellCoordinates.add(position);
+    protected void addCell(Cell cell) {
+        this.cellCoordinates.add(cell);
     }
 
-    protected void initializePositions() {
+    protected void initializeCells() {
         try {
             for (int i = 0; i < getNrOfColumns() * getNrOfRows(); i++) {
-                addPosition(new Cell());
+                addCell(new Cell());
             }
         } catch (Exception e) {
-            System.out.println("initializePositions Error: " + e.getMessage());
+            System.out.println("initializeCells Error: " + e.getMessage());
         }
     }
 
@@ -87,14 +81,18 @@ public class Map {
     /**
      * Visualizes our cell values, empty cell show index of cell instead of its value
      */
-    public void drawMap() {
+    public void drawBoard() {
         try {
             for (int i = 0; i < getCellCoordinates().size(); i++) {
                 Cell cell = getCellCoordinates().get(i);
                 /*Find last column*/
                 int columnBreak = (i + 1) % getNrOfColumns();
-
-                System.out.print(" " + cell.getValue() + " ");
+                /*For aligning purpose only*/
+                if (getNrOfColumns() > 3) {
+                    System.out.print("  " + cell.getValue() + "  ");
+                } else {
+                    System.out.print(" " + cell.getValue() + " ");
+                }
                 /*If not last column*/
                 if (columnBreak > 0) {
                     System.out.print(" | ");
@@ -102,7 +100,12 @@ public class Map {
                 /*If not first row*/
                 if (columnBreak == 0 && i > 0) {
                     System.out.println();
-                    System.out.println("- - + - - + - -");
+                    /*For aligning purpose only*/
+                    if (getNrOfColumns() > 3) {
+                        System.out.println("- -- - + - -- - + - -- -");
+                    } else {
+                        System.out.println("- - + - - + - -");
+                    }
                 }
             }
         } catch (Exception e) {
@@ -115,181 +118,67 @@ public class Map {
     }
 
     /**
-     * Set neighbours of a certain cell based on its index
-     *
-     * @param i
-     */
-    public void setCellNeighbours(int i) {
-        Cell cell = getCellCoordinates().get(i);
-
-        boolean isLastColumn = i + 1 % getNrOfColumns() == 0;
-        boolean isFirstColumn = i % getNrOfColumns() == 0;
-        boolean isFirstRow = i < getNrOfColumns();
-        boolean isLastRow = i + getNrOfColumns() >= getNrOfColumns() * getNrOfRows();
-
-
-        /* Right cell
-         * If not last cell in column, add 1 one to i as positions array start from 0 index
-         */
-        try {
-            if (i < getCellCoordinates().size() && !isLastColumn) {
-                cell.getCellCollision().setRightCell(getCellCoordinates().get(i + 1));
-            }
-        } catch (Exception e) {
-            System.out.println("setCellCollision Right cell error: " + e.getMessage());
-        }
-        /*Left cell
-         * If not last cell to the left*/
-        try {
-            if (i > 0 && !isFirstColumn) {
-                cell.getCellCollision().setLeftCell(getCellCoordinates().get(i - 1));
-            }
-        } catch (Exception e) {
-            System.out.println("setCellCollision Left Cell error " + e.getMessage());
-        }
-        /*Top Cell*/
-        try {
-            if (i + 1 - getNrOfRows() > 0) {
-                cell.getCellCollision().setTopCell(getCellCoordinates().get(i - getNrOfRows()));
-            }
-        } catch (Exception e) {
-            System.out.println("setCellCollision Top cell: " + e.getMessage());
-        }
-        /*Bottom Cell*/
-        try {
-            if (i + getNrOfRows() < getNrOfRows() * getNrOfColumns()) {
-                cell.getCellCollision().setBottomCell(getCellCoordinates().get(i + getNrOfRows()));
-            }
-        } catch (Exception e) {
-            System.out.println("setCellCollision Bottom cell: " + e.getMessage());
-        }
-        /*Right Top
-         * Check if not last column or first row*/
-        try {
-            if (!isLastColumn && !isFirstRow) {
-                cell.getCellCollision().setRightTop(getCellCoordinates().get(i - (getNrOfColumns() - 1)));
-            }
-        } catch (Exception e) {
-            System.out.println("setCellCollision Right top");
-        }
-        /*Right Bottom*/
-        try {
-            if (!isLastColumn && !isLastRow) {
-                cell.getCellCollision().setRightBottom(getCellCoordinates().get(i + (getNrOfColumns() + 1)));
-            }
-        } catch (Exception e) {
-            System.out.println("setCellCollision Right Bottom: " + e.getMessage());
-        }
-        /*Left Top*/
-        try {
-            if (!isFirstColumn && !isFirstRow) {
-                cell.getCellCollision().setLeftTop(getCellCoordinates().get(i - (getNrOfColumns() + 1)));
-            }
-        } catch (Exception e) {
-            System.out.println("setCellCollision Left Top: " + e.getMessage());
-        }
-        /*Left Bottom*/
-        try {
-            if (!isFirstColumn && !isFirstRow) {
-                cell.getCellCollision().setLeftTop(getCellCoordinates().get(i + (getNrOfColumns() - 1)));
-            }
-        } catch (Exception e) {
-            System.out.println("setCellCollision Left Bottom");
-        }
-        cell.getCellCollision().setNeighboursArray();
-    }
-
-
-    /**
      * Loops throw all cells and find the winner
      */
-    protected void checkWinner() {
+    protected void checkWinner() throws Exception {
         try {
             for (int i = 0; i < getNrOfRows(); i++) {
                 boolean isLastColumn = (i + 1) % getNrOfColumns() == 0;
                 boolean isFirstColumn = i % getNrOfColumns() == 0;
                 boolean isFirstRow = i < getNrOfColumns();
                 boolean isLastRow = i + getNrOfColumns() >= getNrOfColumns() * getNrOfRows();
-                /*Check if i is the first column to the left in our Map
-                 * If so, get next x number of columns based to length of our map*/
+                /*Check if i is the first column in game map to the right in our Map (1,4,7 positions in game map)
+                 * If so, get value of all cells in same row if 4 then get value of 5 and 6*/
                 try {
                     if (isFirstColumn) {
-                        this.sameDirectionCellValues = new ArrayList<>();
-                        Cell cell;
-                        for (int j = i; j < getNrOfRows(); j++) {
-                            cell = getCellCoordinates().get(j);
-                            this.sameDirectionCellValues.add(cell.getValue());
-                        }
-                        if (checkDirectionValuesForWinner()) {
-                            setGameFinished(true);
-                            setWinnerSelected(true);
-                        }
+                        checkRowValue(i);
                     }
                 } catch (Exception e) {
                     System.out.println("isFirstColumn error: " + e.getMessage());
+                    throw e;
                 }
 
-                /*Check if first row then get all cells in column below*/
+                /*Check if first row in game map then get all cells in column below
+                 * if column 2, then get value of cell 5 and 8*/
                 try {
                     if (isFirstRow) {
-                        this.sameDirectionCellValues = new ArrayList<>();
-                        Cell cell;
-                        for (int j = i; j < getCellCoordinates().size(); j = j + getNrOfColumns()) {
-                            cell = getCellCoordinates().get(j);
-                            this.sameDirectionCellValues.add(cell.getValue());
-                        }
-                        if (checkDirectionValuesForWinner()) {
-                            setGameFinished(true);
-                            setWinnerSelected(true);
-                        }
+                        checkColumnValue(i);
                     }
                 } catch (Exception e) {
                     System.out.println("isFirstRow error: " + e.getMessage());
+                    throw e;
                 }
-                /*If first column and first row, check diagonal values*/
+                /*If first column and first row, check diagonal values
+                * Cell 1,5,8*/
                 try {
                     if (isFirstColumn && isFirstRow) {
-                        this.sameDirectionCellValues = new ArrayList<>();
-                        Cell cell;
-                        for (int j = i; j < getCellCoordinates().size(); j = j + getNrOfColumns() + 1) {
-                            cell = getCellCoordinates().get(j);
-                            this.sameDirectionCellValues.add(cell.getValue());
-                        }
-                        if (checkDirectionValuesForWinner()) {
-                            setGameFinished(true);
-                            setWinnerSelected(true);
-                        }
+                        checkRightDiagonal(i);
                     }
                 } catch (Exception e) {
                     System.out.println("isFirstColumn && isFirstRow: " + e.getMessage());
+                    throw e;
                 }
-                /*If only last column in first row, check backward diagonal values*/
+                /*If only last column in first row, check backward diagonal values
+                * Cell 3,5,7*/
                 try {
                     if (isLastColumn && isFirstRow) {
-                        this.sameDirectionCellValues = new ArrayList<>();
-                        Cell cell;
-                        for (int j = i; j < getCellCoordinates().size(); j = j + getNrOfColumns() - 1) {
-                            cell = getCellCoordinates().get(j);
-                            this.sameDirectionCellValues.add(cell.getValue());
-                        }
-                        if (checkDirectionValuesForWinner()) {
-                            setGameFinished(true);
-                            setWinnerSelected(true);
-                        }
+                        checkLeftDiagonal(i);
                     }
                 } catch (Exception e) {
                     System.out.println("isLastColumn && isFirstRow : " + e.getMessage());
+                    throw e;
                 }
             }
-            if (getEmptyCells() == 0) {
+            if (getRemainedEmptyCells() == 0) {
                 setGameFinished(true);
             }
         } catch (Exception e) {
             System.out.println("drawMap Error: " + e.getMessage());
+            throw e;
         }
     }
 
-    protected boolean checkDirectionValuesForWinner() {
+    protected boolean checkDirectionValuesForWinner() throws Exception {
         String prevValue = getSameDirectionCellValues().get(0);
 
         /*Start control from second item*/
@@ -303,8 +192,89 @@ public class Map {
             }
         } catch (Exception e) {
             System.out.println("checkDirectionValuesForWinner error: " + e.getMessage());
+            throw e;
         }
         return true;
     }
 
+    protected void checkRowValue(int i) throws Exception {
+        try {
+            this.sameDirectionCellValues = new ArrayList<>();
+            Cell cell;
+            for (int j = i; j < getNrOfRows(); j++) {
+                cell = getCellCoordinates().get(j);
+                this.sameDirectionCellValues.add(cell.getValue());
+            }
+            if (checkDirectionValuesForWinner()) {
+                setGameFinished(true);
+                setWinnerSelected(true);
+            }
+
+        } catch (Exception e) {
+            System.out.println("isFirstColumn error: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    protected void checkColumnValue(int i) throws Exception {
+        try {
+            this.sameDirectionCellValues = new ArrayList<>();
+            Cell cell;
+            for (int j = i; j < getCellCoordinates().size(); j = j + getNrOfColumns()) {
+                cell = getCellCoordinates().get(j);
+                this.sameDirectionCellValues.add(cell.getValue());
+            }
+            if (checkDirectionValuesForWinner()) {
+                setGameFinished(true);
+                setWinnerSelected(true);
+            }
+        } catch (Exception e) {
+            System.out.println("isFirstRow error: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    protected void checkRightDiagonal(int i) throws Exception {
+        try {
+            this.sameDirectionCellValues = new ArrayList<>();
+            Cell cell;
+            for (int j = i; j < getCellCoordinates().size(); j = j + getNrOfColumns() + 1) {
+                cell = getCellCoordinates().get(j);
+                this.sameDirectionCellValues.add(cell.getValue());
+            }
+            if (checkDirectionValuesForWinner()) {
+                setGameFinished(true);
+                setWinnerSelected(true);
+            }
+
+        } catch (Exception e) {
+            System.out.println("isFirstColumn && isFirstRow: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    protected void checkLeftDiagonal(int i) throws Exception{
+        try {
+            this.sameDirectionCellValues = new ArrayList<>();
+            Cell cell;
+            int k = 0;
+            for (int j = i; j < getCellCoordinates().size(); j = j + getNrOfColumns() - 1) {
+                /*Max three items if nr of columns is 3*/
+                k++;
+                if (k > getNrOfColumns()) {
+                    continue;
+                }
+                cell = getCellCoordinates().get(j);
+                this.sameDirectionCellValues.add(cell.getValue());
+            }
+            if (checkDirectionValuesForWinner()) {
+                setGameFinished(true);
+                setWinnerSelected(true);
+
+            }
+        } catch (Exception e) {
+            System.out.println("isLastColumn && isFirstRow : " + e.getMessage());
+            throw e;
+        }
+    }
 }

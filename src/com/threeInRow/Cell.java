@@ -4,17 +4,11 @@ public class Cell {
     private static int nrOfCells = 1;
     //Symbol of cell (X|O) or cell number by default
     private String value;
-    private Player player;
     private boolean isTaken;
-    private int index;
-    private CellCollision cellCollision;
 
     public Cell() {
         this.value = String.valueOf(this.nrOfCells);
-        this.player = null;
         this.isTaken = false;
-        this.index++;
-        this.cellCollision = new CellCollision();
         this.nrOfCells++;
     }
 
@@ -34,13 +28,13 @@ public class Cell {
         this.isTaken = taken;
     }
 
-    protected CellCollision getCellCollision() {
-        return cellCollision;
-    }
-
-    protected void setCellCollision(CellCollision cellCollision) {
-        this.cellCollision = cellCollision;
-    }
+//    protected CellCollision getCellCollision() {
+//        return cellCollision;
+//    }
+//
+//    protected void setCellCollision(CellCollision cellCollision) {
+//        this.cellCollision = cellCollision;
+//    }
 
     protected String getValue() {
         return value;
@@ -50,11 +44,11 @@ public class Cell {
         this.value = value;
     }
 
-    protected Player getPlayer() {
-        return player;
-    }
-
-    protected void setPlayer(Player player) {
-        this.player = player;
-    }
+//    protected Player getPlayer() {
+//        return player;
+//    }
+//
+//    protected void setPlayer(Player player) {
+//        this.player = player;
+//    }
 }
