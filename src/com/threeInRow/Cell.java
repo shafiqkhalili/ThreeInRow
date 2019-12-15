@@ -1,14 +1,19 @@
 package com.threeInRow;
 
 public class Cell {
-    private static int nrOfCells = 1;
+    private static int nrOfCells = 0;
+    private int cellIndex;
     //Symbol of cell (X|O) or cell number by default
-    private String value;
+    private String content;
     private boolean isTaken;
+    //Shows how good chance cell has, used for Ai
+    private int chanceRank;
 
     public Cell() {
-        this.value = String.valueOf(this.nrOfCells);
+        this.content = String.valueOf(nrOfCells);
         this.isTaken = false;
+        this.chanceRank = 0;
+        this.cellIndex = getNrOfCells();
         this.nrOfCells++;
     }
 
@@ -20,10 +25,28 @@ public class Cell {
         Cell.nrOfCells = nrOfCells;
     }
 
+    public int getCellIndex() {
+        return cellIndex;
+    }
+
+    public int getChanceRank() {
+        return chanceRank;
+    }
+
+    public void setChanceRank(int chanceRank) {
+        this.chanceRank = chanceRank;
+    }
+
     protected boolean isTaken() {
         return isTaken;
     }
 
+    protected boolean isNotTaken(){
+        if (!this.isTaken) {
+            return true;
+        }
+        return false;
+    }
     protected void setTaken(boolean taken) {
         this.isTaken = taken;
     }
@@ -36,12 +59,12 @@ public class Cell {
 //        this.cellCollision = cellCollision;
 //    }
 
-    protected String getValue() {
-        return value;
+    protected String getContent() {
+        return content;
     }
 
-    protected void setValue(String value) {
-        this.value = value;
+    protected void setContent(String content) {
+        this.content = content;
     }
 
 //    protected Player getPlayer() {

@@ -1,11 +1,16 @@
 package com.threeInRow;
 
+import java.util.ArrayList;
+
 public abstract class Player {
+    private static ArrayList<Player> allPlayers;
+    protected boolean isAi;
     private String name;
     private String symbol;
     private int nrOfMoves;
     private int winStats;
     private int loseStats;
+    private boolean isPlaying;
 
     public Player(String name, String symbol) {
         this.name = name;
@@ -13,39 +18,68 @@ public abstract class Player {
         this.nrOfMoves = 0;
         this.winStats = 0;
         this.loseStats = 0;
+        this.isPlaying = false;
     }
 
-    public void setNrOfMoves(int nrOfMoves) {
-        this.nrOfMoves = nrOfMoves;
+    public static void addAllPlayers(Player player) {
+        allPlayers.add(player);
     }
 
-    public void setName(String name) {
-        this.name = name;
+    protected static ArrayList<Player> getAllPlayers() {
+        return allPlayers;
     }
 
-    public void setSymbol(String symbol) {
-        this.symbol = symbol;
+    public boolean isAi() {
+        return isAi;
     }
 
-    public String getName() {
+    protected boolean isPlaying() {
+        return isPlaying;
+    }
+
+    protected void setPlaying(boolean playing) {
+        isPlaying = playing;
+    }
+
+    protected String getName() {
         return name;
     }
 
-    public String getSymbol() {
+    protected void setName(String name) {
+        this.name = name;
+    }
+
+    protected String getSymbol() {
         return symbol;
     }
 
-    public int getNrOfMoves() {
+    protected void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
+
+    protected int getNrOfMoves() {
         return nrOfMoves;
+    }
+
+    protected void setNrOfMoves(int nrOfMoves) {
+        this.nrOfMoves = nrOfMoves;
     }
 
     public int getWinStats() {
         return winStats;
     }
 
+    public void setWinStats(int winStats) {
+        this.winStats = winStats;
+    }
+
     public int getLoseStats() {
         return loseStats;
     }
 
-    public abstract int selectCell();
+    public void setLoseStats(int loseStats) {
+        this.loseStats = loseStats;
+    }
+
+    protected abstract int selectCell();
 }

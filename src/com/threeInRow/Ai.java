@@ -1,22 +1,18 @@
 package com.threeInRow;
 
+import java.util.ArrayList;
+
 public class Ai extends Player {
-    int boardSize;
 
-    public Ai(int size) {
+    public Ai() {
         super("Ai", "A");
-        boardSize = size;
-    }
-
-    public int getBoardSize() {
-        return boardSize;
+        super.isAi = true;
     }
 
     @Override
-    public int selectCell() {
-        int rnd = (int) Math.random() * getBoardSize() + 1;
+    protected int selectCell() {
+        int rnd = (int) Math.random() * 9;
 
         return rnd;
     }
-
 }
