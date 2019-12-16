@@ -1,6 +1,7 @@
 package com.threeInRow;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Board {
     /**
@@ -94,33 +95,39 @@ public class Board {
         try {
             for (int i = 0; i < getCellCoordinates().size(); i++) {
                 Cell cell = getCellCoordinates().get(i);
+                int cellLength = cell.getContent().length();
                 /*Find last column on game board to know next line, (3,6 and 9)*/
                 boolean isLastRow = i + getNrOfColumns() >= getNrOfColumns() * getNrOfRows();
                 boolean isLastColumn = (i + 1) % getNrOfColumns() == 0;
                 /*if last column result is 0 */
                 int columnBreak = (i + 1) % getNrOfColumns();
                 /*For aligning purpose only*/
-                if (getNrOfColumns() > 3 && cell.getContent().length() == 1) {
-                    System.out.print("  " + cell.getContent() + "  ");
+                if (getNrOfColumns() > 3 && cellLength == 1) {
+                    System.out.print("  " + cell.getContent() + " ");
+                } else if (getNrOfColumns() > 3 && cellLength > 1) {
+                    System.out.print(" " + cell.getContent() + " ");
                 } else {
                     System.out.print(" " + cell.getContent() + " ");
                 }
                 /*If not last column*/
                 if (columnBreak > 0) {
-                    System.out.print(" | ");
+                    if (getNrOfColumns() > 3) {
+                        System.out.print(" | ");
+                    } else {
+                        System.out.print(" |  ");
+                    }
                 }
                 /*If not first row*/
                 if (columnBreak == 0 && i > 0 && !isLastRow) {
                     /*Line below every row*/
                     System.out.println();
                     for (int j = 0; j < getNrOfColumns(); j++) {
-                        int cellLength = cell.getContent().length();
-                        cellLength = (cellLength > 1 && getNrOfColumns() > 4) ? cellLength : cellLength + 1;
+                        cellLength = (cellLength == 1) ? cellLength + 1 : cellLength;
                         for (int k = 0; k < cellLength; k++) {
                             System.out.print("- ");
                         }
                         if (j < getNrOfColumns() - 1) {
-                            System.out.print("+ ");
+                            System.out.print(" + ");
                         }
                     }
                     System.out.println();
@@ -333,7 +340,7 @@ public class Board {
                 try {
                     if (isFirstColumn) {
                         setRowValue(i);
-                        getBestChoice();
+                        assignBestChoice();
                     }
                 } catch (Exception e) {
                     System.out.println("Line 339 " + e.getMessage());
@@ -345,7 +352,7 @@ public class Board {
                 try {
                     if (isFirstRow) {
                         setColumnValue(i);
-                        getBestChoice();
+                        assignBestChoice();
                     }
                 } catch (Exception e) {
                     System.out.println("Line 351" + e.getMessage());
@@ -356,7 +363,7 @@ public class Board {
                 try {
                     if (isFirstColumn && isFirstRow) {
                         setRightDiagonal(i);
-                        getBestChoice();
+                        assignBestChoice();
                     }
                 } catch (Exception e) {
                     System.out.println("Line 362: " + e.getMessage());
@@ -367,7 +374,7 @@ public class Board {
                 try {
                     if (isLastColumn && isFirstRow) {
                         setLeftDiagonal(i);
-                        getBestChoice();
+                        assignBestChoice();
                     }
                 } catch (Exception e) {
                     System.out.println("Line 373: " + e.getMessage());
@@ -397,11 +404,8 @@ public class Board {
     }
 
     /*Returns best possible location in array*/
-    protected void getBestChoice() throws Exception {
-        ArrayList<String> A = new ArrayList<>();
-        ArrayList<String> B = new ArrayList<>();
-        /*Key-Value pair of symbol and number of their occurrence*/
-        //Map<String, Integer> symbols = new HashMap<>();
+    protected void assignBestChoice() throws Exception {
+
         Player human = getPlayers().get(1);
         Player ai = getPlayers().get(0);
         /*Nr of occurrence*/
@@ -443,38 +447,46 @@ public class Board {
                     System.out.println("Line 435: " + e.getMessage());
                 }
 
-                //Current cell chance to add with new in case if cell is in crossroad
-                int currentChance = cell.getChanceRank();
                 /*If Ai has only one cell left to win*/
                 if (aiTimes == (arrayLength - 1) && emptyTimes > 0) {
                     //highest rank
-                    cell.setChanceRank(256 + currentChance);
+                    cell.setChanceRank(512 + cell.getChanceRank());
                 }
                 //If opposite player has one move left to win, block the opposite player
                 else if (humanTimes == (arrayLength - 1) && emptyTimes > 0) {
-                    cell.setChanceRank(128 + currentChance);
+                    cell.setChanceRank(256 + cell.getChanceRank());
                 }
                 /*Block opponent*/
                 else {
+                    /*Random array index*/
+                    Random r = new Random();
+                    int rndIndex = r.nextInt(arrayLength);
                     /*Return -1 if middle cell in array is taken, else returns index of cell*/
                     int middleIndex = getMiddleIndex();
-                    /*If row is empty take middle cell*/
-                    if (middleIndex >= 0) {
+                    /*If middle cell is not taken and random index equals middle cell, select it*/
+                    if (middleIndex >= 0 && middleIndex == rndIndex) {
                         try {
                             cell = getCellCoordinates().get(middleIndex);
-                            cell.setChanceRank(64 + currentChance);
+                            /*Give rest of cells lower chanceRank so that not get higher
+                             * than 512/256 because those are more important*/
+                            cell.setChanceRank(32 + cell.getChanceRank());
 
                         } catch (Exception e) {
                             System.out.println("Line 452: " + e.getMessage());
                         }
-                    }/*If only opposite player has cells, take empty cell to block opponent*/ else if (humanTimes > 0 && aiTimes == 0 && emptyTimes > 0) {
-                        cell.setChanceRank(32 + currentChance);
+                    }
+                    /*If only opposite player has cells, take empty cell to block opponent*/
+                    else if (humanTimes > 0 && aiTimes == 0 && emptyTimes > 0) {
+                        if (getSameCoordinate().get(rndIndex).isNotTaken()) {
+                            cell = getCellCoordinates().get(middleIndex);
+                        }
+                        cell.setChanceRank(16 + cell.getChanceRank());
                     }
                     /*If only Ai has cells*/
                     else if (aiTimes > 0 && humanTimes == 0) {
-                        cell.setChanceRank(16 + currentChance);
+                        cell.setChanceRank(8 + cell.getChanceRank());
                     } else {
-                        cell.setChanceRank(8 + currentChance);
+                        cell.setChanceRank(4 + cell.getChanceRank());
                     }
                 }
             }

@@ -6,33 +6,11 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-
-        Scanner sc = new Scanner(System.in);
         initialize();
-        /*int opt = 0;
-        while (opt == 0) {
-            System.out.println("Select an option:");
-            System.out.println("1. To start new game");
-            System.out.println("2. To close game");
-            try {
-                opt = Math.abs(sc.nextInt());
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
-            switch (opt) {
-                case 1:
-                    initialize();
-                    break;
-                case 2:
-                    System.exit(0);
-                    break;
-            }
-        }*/
     }
 
     public static void initialize() throws Exception {
         Scanner sc = new Scanner(System.in);
-
         ArrayList<Player> players = new ArrayList<>();
 
         int boardSize = 0;
@@ -126,29 +104,37 @@ public class Main {
         }
         int input = 0;
         int i = 1;
-        while(true){
+        while (true) {
             if (i > 1) {
-                System.out.println("Rounds played: " + i + " of " + 6);
+                System.out.println();
+                System.out.println("Rounds played: " + i);
                 System.out.println("Players Win/Lose ratio: ");
                 System.out.println(players.get(0).getName() + ": " + players.get(0).getWinStats() + "/" + players.get(0).getLoseStats());
                 System.out.println(players.get(1).getName() + ": " + players.get(1).getWinStats() + "/" + players.get(1).getLoseStats());
+                System.out.println();
                 System.out.println("All rounds winner: ");
                 if (players.get(0).getWinStats() > players.get(1).getWinStats()) {
                     System.out.println(players.get(0).getName());
                 } else if (players.get(1).getWinStats() > players.get(0).getWinStats()) {
                     System.out.println(players.get(1).getName());
                 } else {
-                    System.out.println("Still Tie !");
+                    System.out.println("It is Tie !");
                 }
+                System.out.println();
             }
             while (input == 0) {
                 System.out.println("Select an option:");
                 if (i == 1) {
                     System.out.println("1. Play");
                 } else {
+//                  reset player nr of moves
+                    for (Player p : players) {
+                        p.setNrOfMoves(0);
+                    }
                     System.out.println("1. Continue playing");
                 }
                 System.out.println("2. Exit");
+                System.out.println();
                 input = Integer.parseInt(sc.nextLine());
                 input = Math.abs(input);
                 if (nrOfPlayers < 1 || nrOfPlayers > 2) {
@@ -178,8 +164,9 @@ public class Main {
         player.setPlaying(true);
         board.drawBoard();
         while (!board.isGameFinished()) {
+            System.out.println();
+            System.out.println(player.getName() + "(" + player.getSymbol() + ") plays!");
             if (player.isPlaying() && player.isAi()) {
-                System.out.println(player.getName() + "(" + player.getSymbol() + ") plays!");
                 int cellIndex = board.checkBestMove();
                 /*Set current players symbol as cell value*/
                 Cell selectedCell = cellCoordinates.get(cellIndex);
@@ -189,7 +176,6 @@ public class Main {
 
             } else {
                 boolean cellNotSelected = true;
-                System.out.println(player.getName() + "(" + player.getSymbol() + ") plays!");
                 while (cellNotSelected) {
                     int cell = -1;
                     while (cell == -1) {
@@ -225,6 +211,7 @@ public class Main {
             }
             player.setNrOfMoves(player.getNrOfMoves() + 1);
             if (board.isGameFinished() && board.isWinnerSelected()) {
+                System.out.println();
                 System.out.println("Game finished!");
                 System.out.println(player.getName().toUpperCase() +
                         "(" + player.getSymbol() + ")" + " WON in " + player.getNrOfMoves() + " moves.");
@@ -246,6 +233,7 @@ public class Main {
             }
         }
         if (!board.isWinnerSelected()) {
+            System.out.println();
             System.out.println("DRAW !!!");
         }
     }
