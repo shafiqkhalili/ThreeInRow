@@ -15,12 +15,13 @@ public class Main {
 
         int boardSize = 0;
         while (boardSize == 0) {
-            System.out.println("Select game difficulty: ");
+            System.out.println("Select game difficulty / board size: ");
             System.out.println("3. Easy");
             System.out.println("4. Medium");
             System.out.println("5. Difficult");
             try {
                 boardSize = Integer.parseInt(sc.nextLine());
+                //If user put negative number
                 boardSize = Math.abs(boardSize);
                 if (boardSize < 3 || boardSize > 5) {
                     boardSize = 0;
@@ -102,7 +103,6 @@ public class Main {
             pl.setPlaying(true);
             players.add(pl);
         }
-        int input = 0;
         int i = 1;
         while (true) {
             if (i > 1) {
@@ -122,29 +122,32 @@ public class Main {
                 }
                 System.out.println();
             }
-            while (input == 0) {
-                System.out.println("Select an option:");
-                if (i == 1) {
-                    System.out.println("1. Play");
-                } else {
-//                  reset player nr of moves
+            int input = 0;
+            if (i > 1) {
+                while (input == 0) {
+                    //reset player nr of moves
                     for (Player p : players) {
                         p.setNrOfMoves(0);
                     }
+                    System.out.println("Select an option:");
                     System.out.println("1. Continue playing");
-                }
-                System.out.println("2. Exit");
-                System.out.println();
-                input = Integer.parseInt(sc.nextLine());
-                input = Math.abs(input);
-                if (nrOfPlayers < 1 || nrOfPlayers > 2) {
-                    nrOfPlayers = 0;
-                }
-                if (input == 2) {
-                    System.exit(0);
+                    System.out.println("2. Exit");
+
+                    System.out.println();
+                    try {
+                        input = Integer.parseInt(sc.nextLine());
+                        input = Math.abs(input);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                    if (input < 1 || input > 2) {
+                        input = 0;
+                    }
+                    if (input == 2) {
+                        System.exit(0);
+                    }
                 }
             }
-            input = 0;
             i++;
             //Reset cell index
             Cell.setNrOfCells(0);
@@ -155,69 +158,88 @@ public class Main {
     public static void startGame(int boardSize, ArrayList<Player> players) throws Exception {
         /*Initializes board/board*/
         Board board = new Board(boardSize, players);
-
-        Scanner sc = new Scanner(System.in);
+        board.setGameDifficulty(boardSize);
         ArrayList<Cell> cellCoordinates = board.getCellCoordinates();
+        //Take random player at beginning
         double rnd = Math.random();
         int currentPlayer = (int) (rnd * players.size());
         Player player = players.get(currentPlayer);
         player.setPlaying(true);
         board.drawBoard();
+        Cell selectedCell = null;
+
         while (!board.isGameFinished()) {
             System.out.println();
             System.out.println(player.getName() + "(" + player.getSymbol() + ") plays!");
             if (player.isPlaying() && player.isAi()) {
-                int cellIndex = board.checkBestMove();
-                /*Set current players symbol as cell value*/
-                Cell selectedCell = cellCoordinates.get(cellIndex);
-                selectedCell.setContent(player.getSymbol());
-                board.setRemainedEmptyCells(board.getRemainedEmptyCells() - 1);
-                selectedCell.setTaken(true);
+                //Easy game or if board is empty, select random cell
+                if (board.getEmptyCellsCount() == cellCoordinates.size() || board.getNrOfColumns() == 3) {
+                    selectedCell = board.randomEmptyCell();
+                } else if (board.getNrOfColumns() > 3) {
+                    selectedCell = board.highestCell();
+                }
 
             } else {
                 boolean cellNotSelected = true;
                 while (cellNotSelected) {
-                    int cell = -1;
-                    while (cell == -1) {
+                    int cellIndex = -1;
+                    while (cellIndex == -1) {
                         try {
-                            cell = player.selectCell();
+                            cellIndex = player.selectCell();
                         } catch (NumberFormatException e) {
                             System.out.println(e.getMessage());
                         }
                     }
                     /*Subtract one as index begins in 0*//*
-                    cell--;*/
+                    cellIndex--;*/
                     try {
-                        Cell selectedCell = cellCoordinates.get(cell);
+                        selectedCell = cellCoordinates.get(cellIndex);
                         if (!selectedCell.isTaken()) {
-                            /*Set current players symbol as cell value*/
-                            selectedCell.setContent(player.getSymbol());
-                            board.setRemainedEmptyCells(board.getRemainedEmptyCells() - 1);
-                            selectedCell.setTaken(true);
                             cellNotSelected = false;
                         } else {
-                            System.out.println("Cell already selected. Select another cell!");
+                            System.out.println("Cell already selected. Select another cellIndex!");
                         }
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
                 }
             }
-            board.drawBoard();
+            /*Set current players symbol as cellIndex value*/
+            selectedCell.setContent(player.getSymbol());
+            board.setEmptyCellsCount(board.getEmptyCellsCount() - 1);
+            selectedCell.setTaken(true);
             try {
-                board.checkWinner();
+                /*Remove cell from empty cells array, as it is used now*/
+                board.unsetEmptyCellIndex(selectedCell.getCellIndex());
+            }
+            catch (Exception e){
+                System.out.println(e.getMessage());
+            }
+            try {
+                board.drawBoard();
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
-            player.setNrOfMoves(player.getNrOfMoves() + 1);
-            if (board.isGameFinished() && board.isWinnerSelected()) {
-                System.out.println();
-                System.out.println("Game finished!");
-                System.out.println(player.getName().toUpperCase() +
-                        "(" + player.getSymbol() + ")" + " WON in " + player.getNrOfMoves() + " moves.");
-                player.setWinStats(player.getWinStats() + 1);
+            try {
+                board.evaluateBoard();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
 
+            player.setNrOfMoves(player.getNrOfMoves() + 1);
+
+            if (board.isGameFinished()) {
+                System.out.println();
+                System.out.println("Game finished!");
+                if (board.isWinnerSelected()) {
+                    System.out.println(player.getName().toUpperCase() +
+                            "(" + player.getSymbol() + ")" + " WON in " + player.getNrOfMoves() + " moves.");
+                    player.setWinStats(player.getWinStats() + 1);
+                } else if (!board.isWinnerSelected()) {
+                    System.out.println("DRAW !!!");
+                }
+            }
+            /*Switch player*/
             if (!board.isGameFinished()) {
                 /*Change players on each turn, works even if more then two player*/
                 for (int j = 0; j < players.size(); j++) {
@@ -230,11 +252,10 @@ public class Main {
                 player.setPlaying(false);
                 player = players.get(currentPlayer);
                 player.setPlaying(true);
+            } else {
+                //Set loose stats of second player as first player has already won
+                player.setLoseStats(player.getLoseStats() + 1);
             }
-        }
-        if (!board.isWinnerSelected()) {
-            System.out.println();
-            System.out.println("DRAW !!!");
         }
     }
 }
