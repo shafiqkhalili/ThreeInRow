@@ -136,9 +136,9 @@ public class Ai extends Player {
         try {
             for (int i = 0; i < arrayLength; i++) {
                 cell = board.getSingleDirection().get(i);
-                if (!isAi() && cell.isTaken()) {
+                if (!cell.getContent().equalsIgnoreCase(getSymbol()) && cell.isTaken()) {
                     humanTimes++;
-                } else if (isAi() && cell.isTaken()) {
+                } else if (cell.getContent().equalsIgnoreCase(getSymbol())) {
                     aiTimes++;
                 } else {
                     emptyCellIndex = cell.getCellIndex();
@@ -178,7 +178,7 @@ public class Ai extends Player {
             else {
                 /*If only Ai has cells, try more cells*/
                 if (aiTimes > 0 && humanTimes == 0) {
-                    cell.setChanceRank(64 + cell.getChanceRank());
+                    cell.setChanceRank((32*aiTimes) + cell.getChanceRank());
                 }
                 /*If only opposite player has cells, take empty cell to block opponent*/
                 else if (humanTimes > 0 && aiTimes == 0) {

@@ -57,6 +57,7 @@ public class Main {
                             nrOfPlayers = 0;
                             newGameOpt = 2;
                             boardSize = 0;
+                            nrOfGames = 0;
                             players = new ArrayList<>();
                             break;
                         case 3:
