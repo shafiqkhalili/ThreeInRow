@@ -181,7 +181,7 @@ public class Board {
                         //Create array of content of each cell in specific direction
                         setRowValue(i);
                         //Check for the winner
-                        checkIfCoordinatesAreSame();
+                        if(checkIfCoordinatesAreSame()) break;
                     }
                 } catch (Exception e) {
                     System.out.println("Line 161: " + e.getMessage());
@@ -193,7 +193,7 @@ public class Board {
                 try {
                     if (isFirstRow) {
                         setColumnValue(i);
-                        checkIfCoordinatesAreSame();
+                        if(checkIfCoordinatesAreSame()) break;
                     }
                 } catch (Exception e) {
                     System.out.println("Line 177: " + e.getMessage());
@@ -204,7 +204,7 @@ public class Board {
                 try {
                     if (isFirstColumn && isFirstRow) {
                         setRightDiagonal(i);
-                        checkIfCoordinatesAreSame();
+                        if(checkIfCoordinatesAreSame()) break;
                     }
                 } catch (Exception e) {
                     System.out.println("Line 192: " + e.getMessage());
@@ -215,7 +215,7 @@ public class Board {
                 try {
                     if (isLastColumn && isFirstRow) {
                         setLeftDiagonal(i);
-                        checkIfCoordinatesAreSame();
+                        if(checkIfCoordinatesAreSame()) break;
                     }
                 } catch (Exception e) {
                     System.out.println("Line 297: " + e.getMessage());
@@ -238,7 +238,7 @@ public class Board {
      * @return boolean
      * @throws Exception
      */
-    protected void checkIfCoordinatesAreSame() throws Exception {
+    protected boolean checkIfCoordinatesAreSame() throws Exception {
         boolean result = true;
         Cell firstCell = getSingleDirection().get(0);
 
@@ -260,6 +260,7 @@ public class Board {
             System.out.println("Line 241: " + e.getMessage());
             throw e;
         }
+        return result;
     }
 
     /**
