@@ -1,5 +1,6 @@
 package com.threeInRow;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Human extends Player {
@@ -9,8 +10,7 @@ public class Human extends Player {
         super.isAi = false;
     }
 
-    @Override
-    public int selectCell() {
+    protected int getInput() {
         Scanner sc = new Scanner(System.in);
         int cell = -1;
         while (cell == -1) {
@@ -28,5 +28,35 @@ public class Human extends Player {
             }
         }
         return cell;
+    }
+    @Override
+    protected Cell nextMove(Board board){
+        ArrayList<Cell> cellCoordinates = board.getCellCoordinates();
+        boolean cellNotSelected = true;
+        Cell selectedCell = null;
+
+        while (cellNotSelected) {
+            int cellIndex = -1;
+            while (cellIndex == -1) {
+                try {
+                    cellIndex = getInput();
+                } catch (NumberFormatException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+            /*Subtract one as index begins in 0*//*
+                    cellIndex--;*/
+            try {
+                selectedCell = cellCoordinates.get(cellIndex);
+                if (!selectedCell.isTaken()) {
+                    cellNotSelected = false;
+                } else {
+                    System.out.println("Cell already selected. Select another cellIndex!");
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        return selectedCell;
     }
 }

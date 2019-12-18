@@ -81,5 +81,5 @@ public abstract class Player {
         this.loseStats = loseStats;
     }
 
-    protected abstract int selectCell();
+    protected abstract Cell nextMove(Board board) throws Exception;
 }
